@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: #C0552F;
+    --color-primary-light: #D67A5A;
+    --color-primary-dark: #A04425;
+    --color-sage: #9CAF88;
+    --color-sage-light: #B8C9A8;
+    --color-sage-dark: #7A8F6A;
+    --color-earth: #8B7355;
+    --color-earth-light: #A68F75;
+    --color-earth-dark: #6D5A42;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply min-h-screen bg-neutral-50 text-neutral-900 overflow-x-hidden;
+  }
+
+  /* Typography improvements */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-playfair), Georgia, serif;
+    color: #3E362C;
+    line-height: 1.2;
+  }
+
+  p {
+    line-height: 1.75;
+  }
+
+  /* Focus styles */
+  *:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Section wrapper - now handled inline in PageRenderer */
+
+  /* Card base */
+  .card-base {
+    @apply bg-white rounded-lg border border-neutral-200 shadow-sm hover:shadow-md transition-shadow;
+  }
+
+  /* Button base */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-white rounded-lg transition-all shadow-lg hover:shadow-xl min-h-[44px];
+    background-color: var(--color-primary);
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--color-primary-dark);
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold bg-white border-2 rounded-lg transition-all min-h-[44px];
+    color: #3E362C;
+    border-color: #D4CCC0;
+  }
+  
+  .btn-secondary:hover {
+    background-color: #F5F1E8;
+  }
+}
+

@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Unit {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  name          String
+  type          String   // "stay" | "event"
+  sleepsUpTo    Int?
+  resourceGroup String?  // Units in same group share availability (e.g., "main-campus")
+  createdAt     DateTime @default(now())
+  
+  bookings Booking[]
+  blockedRanges BlockedDateRange[]
+}
+
+model Booking {
+  id        String   @id @default(cuid())
+  unitId    String
+  unit      Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  status    String   @default("pending") // "pending" | "confirmed" | "cancelled"
+  name      String
+  email     String
+  phone     String?
+  guests    Int?
+  checkIn   DateTime?
+  checkOut  DateTime?
+  eventDate DateTime?
+  startTime String?
+  endTime   String?
+  eventType String?
+  notes     String?
+  createdAt DateTime @default(now())
+  
+  // Quick status fields for UI (denormalized from NotificationLog)
+  ownerEmailStatus   String? @default("not_sent") // "not_sent" | "sent" | "failed"
+  ownerSmsStatus     String? @default("not_sent")
+  guestEmailStatus   String? @default("not_sent")
+  guestSmsStatus     String? @default("not_sent")
+  ownerEmailError    String?
+  ownerSmsError      String?
+  guestEmailError    String?
+  ownerEmailSentAt   DateTime?
+  ownerSmsSentAt     DateTime?
+  guestEmailSentAt   DateTime?
+  lastNotificationError String?
+  
+  notifications NotificationLog[]
+  
+  @@index([unitId, status])
+  @@index([checkIn, checkOut])
+  @@index([eventDate])
+}
+
+model BlockedDateRange {
+  id            String   @id @default(cuid())
+  unitId        String?
+  unit          Unit?    @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  resourceGroup String?  // If set, blocks all units in this group (unitId can be null)
+  startDate     DateTime
+  endDate       DateTime
+  reason        String?
+  createdAt     DateTime @default(now())
+  
+  @@index([unitId, startDate, endDate])
+  @@index([resourceGroup, startDate, endDate])
+}
+
+model NotificationLog {
+  id                String   @id @default(cuid())
+  bookingId         String
+  booking           Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  audience          String   // "owner" | "guest"
+  channel           String   // "email" | "sms"
+  messageType       String   // "owner_new_request" | "guest_receipt" | "guest_confirmed" | "owner_status_change"
+  status            String   // "sent" | "failed"
+  provider          String   // "resend" | "twilio"
+  providerMessageId String?
+  errorMessage      String?
+  createdAt         DateTime @default(now())
+  
+  @@index([bookingId])
+  @@index([audience, channel, messageType])
+  @@index([bookingId, audience, channel, messageType, status])
+}
