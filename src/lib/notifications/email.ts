@@ -88,8 +88,14 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
         },
       })
 
+      // Format email with display name if EMAIL_FROM is just an email
+      const fromEmail = env.EMAIL_FROM || env.SMTP_USER
+      const fromFormatted = fromEmail && !fromEmail.includes('<') 
+        ? `Arka Acres <${fromEmail}>` 
+        : fromEmail
+
       const info = await transporter.sendMail({
-        from: env.EMAIL_FROM || env.SMTP_USER,
+        from: fromFormatted || env.SMTP_USER,
         to,
         subject,
         html,

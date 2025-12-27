@@ -91,3 +91,16 @@ model NotificationLog {
   @@index([audience, channel, messageType])
   @@index([bookingId, audience, channel, messageType, status])
 }
+
+model AdminUser {
+  id                  String    @id @default(cuid())
+  email               String    @unique
+  passwordHash        String
+  resetTokenHash      String?   // SHA256 hash of reset token
+  resetTokenExpiresAt DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  
+  @@index([email])
+  @@index([resetTokenHash])
+}

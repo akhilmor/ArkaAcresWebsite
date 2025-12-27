@@ -5,6 +5,9 @@
  * Prints which providers are active
  */
 
+// Load environment variables
+import 'dotenv/config'
+
 import { getEnvSafe } from '../src/lib/env'
 
 const env = getEnvSafe()

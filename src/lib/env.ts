@@ -19,8 +19,10 @@ const envSchema = z.object({
   TWILIO_FROM_NUMBER: z.string().optional(),
   SMS_TO_NUMBER: z.string().default('+14695369020'),
   ADMIN_PASSWORD: z.string().optional(),
+  ADMIN_EMAIL: z.string().email().optional(),
   ENABLE_GUEST_SMS: z.string().default('false'),
   NEXT_PUBLIC_SITE_URL: z.string().optional(),
+  NEXT_PUBLIC_APP_URL: z.string().optional(), // For password reset links
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 })
 
@@ -45,8 +47,10 @@ export function getEnv(): EnvResult {
     TWILIO_FROM_NUMBER: process.env.TWILIO_FROM_NUMBER,
     SMS_TO_NUMBER: process.env.SMS_TO_NUMBER || '+14695369020',
     ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
+    ADMIN_EMAIL: process.env.ADMIN_EMAIL,
     ENABLE_GUEST_SMS: process.env.ENABLE_GUEST_SMS || 'false',
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NODE_ENV: process.env.NODE_ENV || 'development',
   }
 
@@ -102,8 +106,10 @@ export function getEnvSafe() {
     TWILIO_FROM_NUMBER: process.env.TWILIO_FROM_NUMBER,
     SMS_TO_NUMBER: process.env.SMS_TO_NUMBER || '+14695369020',
     ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
+    ADMIN_EMAIL: process.env.ADMIN_EMAIL,
     ENABLE_GUEST_SMS: process.env.ENABLE_GUEST_SMS === 'true',
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NODE_ENV: (process.env.NODE_ENV || 'development') as 'development' | 'production' | 'test',
   }
   }

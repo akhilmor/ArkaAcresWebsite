@@ -24,6 +24,28 @@ A production-ready booking system for Arka Acres with availability calendar, ove
 - **Resend** (email) + **Nodemailer** (SMTP fallback)
 - **Twilio** (SMS)
 
+## Dev Troubleshooting
+
+If you see build errors like "Cannot find module './####.js'" or 404s for CSS/chunk files:
+
+1. **Stop the dev server** (Ctrl+C)
+2. **Clean build cache:**
+   ```bash
+   npm run clean
+   ```
+3. **Restart dev server:**
+   ```bash
+   npm run dev
+   ```
+
+If issues persist:
+```bash
+npm run reinstall
+npm run dev
+```
+
+**Note:** Always run `npm run dev` from the `nextjs` folder (where `package.json` is located).
+
 ## Quick Start
 
 ### 1. Install Dependencies
