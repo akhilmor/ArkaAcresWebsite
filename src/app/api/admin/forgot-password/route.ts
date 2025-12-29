@@ -44,7 +44,11 @@ export async function POST(request: NextRequest) {
     })
 
     // Build reset URL
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : '')
+    if (!appUrl) {
+      console.error('NEXT_PUBLIC_APP_URL or NEXT_PUBLIC_SITE_URL must be set in production')
+      return NextResponse.json({ ok: true, error: 'Configuration error' }, { status: 500 })
+    }
     const resetUrl = `${appUrl}/admin/reset-password?token=${token}`
 
     // Send reset email

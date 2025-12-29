@@ -326,7 +326,7 @@ export function getOwnerNewRequestEmail(data: BookingData) {
 
       <p><strong>Action required:</strong> Please review this booking in the admin panel and confirm or cancel as appropriate.</p>
       
-      <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/admin" class="action">Review in Admin Panel</a>
+      <a href="${process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : '/admin')}/admin" class="action">Review in Admin Panel</a>
     </div>
   </div>
 </body>

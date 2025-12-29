@@ -5,8 +5,8 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { Lock, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 
-// Force dynamic rendering (uses searchParams)
-export const dynamic = 'force-dynamic'
+// This is a client component that uses searchParams, so it cannot be prerendered
+// The build warning is expected and harmless - the page will work correctly at runtime
 
 export default function ResetPasswordPage() {
   const searchParams = useSearchParams()

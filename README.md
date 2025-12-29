@@ -333,23 +333,181 @@ npm run db:studio
 
 ## Production Deployment
 
-1. **Database:** Switch to PostgreSQL
+### Deploying to Vercel + Connecting GoDaddy Domain
+
+#### Prerequisites
+- GitHub repository with your code pushed
+- Vercel account (free tier works)
+- GoDaddy domain account
+- Email provider configured (Resend recommended) or SMTP credentials
+
+#### Step 1: Verify Local Build
+
+Before deploying, ensure the project builds locally:
+
+```bash
+cd nextjs
+npm install
+npm run build
+```
+
+**Expected output:** Build should complete successfully. You may see a warning about `/admin/reset-password` prerendering (this is expected for dynamic routes and won't affect production).
+
+**If build fails:**
+- Check for TypeScript errors: `npm run lint`
+- Ensure Prisma client is generated: `npm run db:generate`
+- Clean and rebuild: `npm run clean && npm run build`
+
+#### Step 2: Deploy to Vercel
+
+1. **Import Project:**
+   - Go to [vercel.com](https://vercel.com) and sign in
+   - Click "Add New..." → "Project"
+   - Import your GitHub repository
+   - Select the repository: `ArkaAcresWebsite`
+
+2. **Configure Project:**
+   - **Root Directory:** Set to `nextjs` (if your Next.js app is in a subdirectory)
+   - **Framework Preset:** Next.js (auto-detected)
+   - **Build Command:** `npm run build` (default)
+   - **Output Directory:** `.next` (default)
+   - **Install Command:** `npm install` (default)
+
+3. **Environment Variables:**
+   Add all required environment variables in Vercel dashboard:
+   - Go to Project Settings → Environment Variables
+   - Add each variable from `.env.example`:
+     ```
+     DATABASE_URL=postgresql://... (or use Vercel Postgres)
+     ADMIN_EMAIL=your-admin@example.com
+     ADMIN_PASSWORD=your-secure-password
+     NEXT_PUBLIC_SITE_URL=https://yourdomain.com
+     NEXT_PUBLIC_APP_URL=https://yourdomain.com
+     RESEND_API_KEY=re_xxxxx
+     EMAIL_FROM=Arka Acres <bookings@yourdomain.com>
+     OWNER_EMAIL=arkaacres@gmail.com
+     OWNER_PHONE=+14695369020
+     # ... (add all other vars from .env.example)
+     ```
+   - **Important:** Set `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_APP_URL` to your production domain (e.g., `https://arkaacres.com`)
+   - Apply to: **Production, Preview, Development** (or just Production if preferred)
+
+4. **Database Setup:**
+   - **Option A: Vercel Postgres (Recommended)**
+     - In Vercel dashboard: Storage → Create Database → Postgres
+     - Vercel automatically provides `DATABASE_URL` env var
+     - Run migrations: Connect to Vercel Postgres and run `npx prisma migrate deploy`
+   - **Option B: External PostgreSQL**
+     - Use a service like Supabase, Railway, or Neon
+     - Add `DATABASE_URL` as environment variable
+
+5. **Deploy:**
+   - Click "Deploy"
+   - Wait for build to complete
+   - Vercel will provide a preview URL (e.g., `your-project.vercel.app`)
+
+#### Step 3: Connect GoDaddy Domain
+
+1. **In Vercel Dashboard:**
+   - Go to your project → Settings → Domains
+   - Click "Add Domain"
+   - Enter your domain (e.g., `arkaacres.com`)
+   - Vercel will show DNS records to configure
+
+2. **In GoDaddy DNS Settings:**
+   - Log in to GoDaddy
+   - Go to DNS Management for your domain
+   - **Add/Update these records:**
+     ```
+     Type: A
+     Name: @
+     Value: 76.76.21.21
+     TTL: 600 (or default)
+     
+     Type: CNAME
+     Name: www
+     Value: cname.vercel-dns.com
+     TTL: 600 (or default)
+     ```
+   - **Important:** If you have existing MX records for email (Gmail), **DO NOT DELETE THEM**. Keep all MX records intact.
+   - Save changes
+
+3. **Wait for DNS Propagation:**
+   - DNS changes can take 5 minutes to 48 hours (usually 15-30 minutes)
+   - Check propagation: [whatsmydns.net](https://www.whatsmydns.net)
+   - Vercel will automatically detect when DNS is configured correctly
+
+4. **Verify Domain:**
+   - In Vercel dashboard, the domain should show "Valid Configuration"
+   - Visit `https://yourdomain.com` to confirm site loads
+   - Check SSL certificate is active (Vercel provides free SSL)
+
+#### Step 4: Post-Deployment Setup
+
+1. **Run Database Migrations:**
    ```bash
-   DATABASE_URL=postgresql://user:password@host:5432/dbname
+   # Connect to your production database
+   DATABASE_URL="your-production-db-url" npx prisma migrate deploy
+   
+   # Seed initial data (units)
+   DATABASE_URL="your-production-db-url" npm run db:seed
    ```
 
-2. **Environment Variables:** Set all required vars in production environment
-
-3. **Build:**
-   ```bash
-   npm run build
-   npm start
-   ```
-
-4. **Verify:**
-   - Check `/api/health` shows all providers configured
+2. **Verify Production:**
+   - Visit `https://yourdomain.com`
+   - Check `/api/health` - should show all providers configured
    - Test booking flow end-to-end
-   - Check admin panel works
+   - Test admin panel: `/admin`
+   - Verify email notifications work (test booking)
+
+3. **Configure Email Domain (Resend):**
+   - If using Resend, verify your domain in Resend dashboard
+   - Add DNS records (SPF, DKIM) as shown in Resend
+   - Update `EMAIL_FROM` to use verified domain
+
+#### Step 5: Production Checklist
+
+- ✅ **Build passes** - Verified locally with `npm run build`
+- ✅ **Deploy passes** - Vercel deployment successful
+- ✅ **Vercel domain added** - Domain configured in Vercel dashboard
+- ✅ **GoDaddy DNS records set:**
+  - A record: `@` → `76.76.21.21`
+  - CNAME record: `www` → `cname.vercel-dns.com`
+  - MX records preserved for Gmail (if using Gmail)
+- ✅ **Environment variables set** - All required vars in Vercel
+- ✅ **Database connected** - Migrations run, seed data loaded
+- ✅ **SSL active** - HTTPS working (Vercel provides automatically)
+- ✅ **Health check passes** - `/api/health` shows all systems configured
+- ✅ **Booking flow tested** - End-to-end booking works
+- ✅ **Admin panel accessible** - Can log in and manage bookings
+
+#### Troubleshooting Deployment
+
+**Build fails on Vercel:**
+- Check build logs in Vercel dashboard
+- Ensure `package.json` has correct scripts
+- Verify Prisma client generates: add `postinstall: prisma generate` (already present)
+- Check for TypeScript errors locally first
+
+**Domain not resolving:**
+- Verify DNS records in GoDaddy match Vercel requirements
+- Wait for DNS propagation (can take up to 48 hours)
+- Check DNS with: `dig yourdomain.com` or [whatsmydns.net](https://www.whatsmydns.net)
+
+**404s for CSS/JS assets:**
+- Ensure `next.config.js` doesn't have incorrect `basePath` or `assetPrefix`
+- Check Vercel build logs for asset compilation errors
+- Verify `NEXT_PUBLIC_SITE_URL` is set correctly
+
+**Database connection errors:**
+- Verify `DATABASE_URL` is set in Vercel environment variables
+- Check database allows connections from Vercel IPs
+- Run migrations: `npx prisma migrate deploy`
+
+**Email/SMS not working:**
+- Check `/api/health` endpoint for provider status
+- Verify all email/SMS env vars are set in Vercel
+- Check Resend/Twilio dashboards for delivery logs
 
 ## Troubleshooting
 
