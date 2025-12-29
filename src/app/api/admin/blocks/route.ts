@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 async function checkAuth(request: NextRequest): Promise<boolean> {
   const cookieStore = await cookies()

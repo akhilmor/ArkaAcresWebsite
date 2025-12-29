@@ -6,6 +6,9 @@ import { VISIT_CONFIG } from '@/content/siteContent'
 import { getEnvSafe } from '@/lib/env'
 import { serverLogBuffer } from '@/lib/serverLogBuffer'
 
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 async function checkAuth(request: NextRequest): Promise<boolean> {
   const cookieStore = await cookies()
   const session = cookieStore.get('admin_session')

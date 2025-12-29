@@ -5,6 +5,7 @@ import { verifyPassword, hashPassword } from '@/lib/adminAuth'
 import { ADMIN_EMAIL } from '@/lib/adminConstants'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 async function checkAuth(request: NextRequest): Promise<boolean> {
   const cookieStore = await cookies()

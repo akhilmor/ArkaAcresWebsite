@@ -5,6 +5,7 @@ import { sendOwnerSms } from '@/lib/notify'
 import { getEnvSafe } from '@/lib/env'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 async function checkAuth(request: NextRequest): Promise<boolean> {
   const cookieStore = await cookies()

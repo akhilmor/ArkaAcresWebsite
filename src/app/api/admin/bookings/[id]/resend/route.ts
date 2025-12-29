@@ -12,6 +12,7 @@ import {
 import { serverLogBuffer } from '@/lib/serverLogBuffer'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 async function checkAuth(request: NextRequest): Promise<boolean> {
   const cookieStore = await cookies()

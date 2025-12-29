@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma'
 import { ADMIN_EMAIL } from '@/lib/adminConstants'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
