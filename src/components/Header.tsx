@@ -44,7 +44,7 @@ export default function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-2">
+          <div className="hidden lg:flex items-center gap-2">
             {NAV_ITEMS.map((item) => {
               const active = !item.external && isActive(item.href)
               
@@ -55,7 +55,7 @@ export default function Header() {
                     href={item.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-4 py-2 text-sm font-medium text-neutral-700 hover:text-primary transition-colors rounded-md hover:bg-neutral-50"
+                    className="px-4 py-2 text-sm font-medium text-neutral-700 hover:text-primary transition-colors rounded-md hover:bg-neutral-50 whitespace-nowrap"
                   >
                     {item.label}
                   </a>
@@ -65,7 +65,7 @@ export default function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`px-4 py-2 text-sm font-medium transition-colors rounded-md ${
+                  className={`px-4 py-2 text-sm font-medium transition-colors rounded-md whitespace-nowrap ${
                     active
                       ? 'text-primary border-b-2 border-primary'
                       : 'text-neutral-700 hover:text-primary hover:bg-neutral-50'
@@ -77,7 +77,7 @@ export default function Header() {
             })}
             <Link
               href="/activities"
-              className="ml-4 px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-dark rounded-md transition-colors shadow-sm hover:shadow-md"
+              className="ml-2 px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-dark rounded-md transition-colors shadow-sm hover:shadow-md whitespace-nowrap"
             >
               Plan a Visit
             </Link>

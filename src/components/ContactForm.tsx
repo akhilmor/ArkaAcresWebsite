@@ -59,7 +59,7 @@ export default function ContactForm() {
       setFormData({ name: '', email: '', message: '', honey: '' })
     } catch (err) {
       setLoading(false)
-      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again later.')
     }
   }
 
@@ -69,7 +69,7 @@ export default function ContactForm() {
         <div className="flex items-center justify-center gap-2 mb-2">
           <CheckCircle className="text-green-600" size={20} />
           <p className="text-green-800 font-semibold">
-            Thank you for your message!
+            Message sent successfully!
           </p>
         </div>
         <p className="text-green-700 text-sm">

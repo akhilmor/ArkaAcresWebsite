@@ -30,12 +30,13 @@ export default function HouseCard({
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
       {/* Image */}
-      <div className="h-48 sm:h-64 relative">
+      <div className="relative w-full h-48 sm:h-64 overflow-hidden">
         <SmartImage
           src={imageSrc}
           alt={imageLabel}
-          aspectRatio="wide"
+          aspectRatio="auto"
           fallbackLabel={imageLabel}
+          className="w-full h-full"
         />
       </div>
 

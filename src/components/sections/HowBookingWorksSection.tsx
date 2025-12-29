@@ -7,23 +7,23 @@ import SectionHeading from '@/components/SectionHeading'
 const steps = [
   {
     icon: CheckCircle,
-    title: 'Select your stay or event venue',
-    description: 'Choose from our comfortable accommodations or book Aurora Grand for your gathering.',
+    title: 'Pick a place',
+    description: 'Choose a place to stay or book Aurora Grand for your event.',
   },
   {
     icon: CheckCircle,
-    title: 'Choose your dates and provide details',
-    description: 'Select your check-in/check-out dates or event date, and tell us about your group.',
+    title: 'Pick dates and tell us about your group',
+    description: 'Select your dates and let us know how many people are coming.',
   },
   {
     icon: CheckCircle,
-    title: 'We confirm availability and send details',
-    description: 'We\'ll verify availability and send you confirmation with all the information you need.',
+    title: 'We\'ll confirm and send details',
+    description: 'We\'ll check availability and send you everything you need to know.',
   },
   {
     icon: CheckCircle,
-    title: 'Enjoy your time at Arka Acres',
-    description: 'Relax, connect with nature, and experience the peaceful farm environment.',
+    title: 'Come and enjoy',
+    description: 'Show up, relax, and enjoy the farm.',
   },
 ]
 
@@ -32,8 +32,8 @@ export default function HowBookingWorksSection() {
     <section className="py-16 sm:py-20 lg:py-24 bg-neutral-50">
       <Container maxWidth="6xl">
         <SectionHeading
-          title="How Booking Works"
-          subtitle="Booking your stay or event at Arka Acres is simple and straightforward."
+          title="How It Works"
+          subtitle="Booking is pretty simple. Here's the process."
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
           {steps.map((step, index) => {

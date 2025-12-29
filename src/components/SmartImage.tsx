@@ -46,8 +46,13 @@ export default function SmartImage({
     return <FallbackPlaceholder />
   }
 
+  // If aspectRatio is 'auto', don't apply aspect class (parent controls size)
+  const wrapperClasses = aspectRatio === 'auto' 
+    ? `relative ${className} overflow-hidden`
+    : `relative ${aspectClasses[aspectRatio]} ${className} rounded-lg overflow-hidden`
+
   return (
-    <div className={`relative ${aspectClasses[aspectRatio]} ${className} rounded-lg overflow-hidden`}>
+    <div className={wrapperClasses}>
       {/* Loading shimmer */}
       {isLoading && (
         <div className="absolute inset-0 bg-gradient-to-r from-neutral-200 via-neutral-100 to-neutral-200 animate-pulse" />
