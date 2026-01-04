@@ -12,14 +12,13 @@ Add these environment variables in **Vercel Dashboard → Your Project → Setti
    - **Note:** If using Vercel Postgres, this is auto-provided. Otherwise, get from your database provider (Supabase, Railway, Neon, etc.)
 
 2. **ADMIN_EMAIL**
-   - **Value:** Your admin email address
-   - **Example:** `admin@arkaacres.com`
-   - **Note:** Used for password reset functionality
+   - **Value:** `arkaacres@gmail.com` (fixed - cannot be changed)
+   - **Note:** Only this email can log into `/admin` panel. Enforced in code.
 
 3. **ADMIN_PASSWORD**
    - **Value:** Your secure admin password
    - **Example:** `YourSecurePassword123!`
-   - **Note:** Initial password for `/admin` panel. Can be changed via reset flow.
+   - **Note:** Initial password for `/admin` panel. Used to create admin user if missing. Can be changed via reset flow. After reset, DB password takes precedence.
 
 4. **NEXT_PUBLIC_SITE_URL**
    - **Value:** Your production domain URL
