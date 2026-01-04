@@ -42,14 +42,54 @@ export default function BookingCalendar({
       const response = await fetch(
         `/api/availability?unitSlug=${unitSlug}&from=${from.toISOString().split('T')[0]}&to=${to.toISOString().split('T')[0]}`
       )
+
+      // Check if response is OK
+      if (!response.ok) {
+        // Try to read response as text first
+        const text = await response.text()
+        let errorMessage = 'Failed to fetch availability'
+        
+        // Try to parse as JSON if possible
+        try {
+          const errorData = JSON.parse(text)
+          errorMessage = errorData.error || errorMessage
+        } catch {
+          // If it's HTML (error page), show generic error
+          if (text.trim().startsWith('<!') || text.includes('<html')) {
+            errorMessage = 'Server error. Please try again in a moment.'
+          }
+        }
+        
+        console.error('Availability API error:', {
+          status: response.status,
+          statusText: response.statusText,
+          message: errorMessage,
+        })
+        return
+      }
+
+      // Check content-type before parsing JSON
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text()
+        console.error('Availability API returned non-JSON response:', {
+          contentType,
+          preview: text.substring(0, 200),
+        })
+        return
+      }
+
       const data = await response.json()
 
       if (data.ok) {
         const disabled = data.disabledDates.map((d: string) => new Date(d))
         setDisabledDates(disabled)
+      } else {
+        console.error('Availability API returned error:', data.error)
       }
     } catch (error) {
       console.error('Failed to fetch availability:', error)
+      // Don't show error to user, just log it - calendar will work with empty disabled dates
     } finally {
       setLoading(false)
     }

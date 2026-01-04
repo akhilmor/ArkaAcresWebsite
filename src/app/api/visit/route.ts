@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { VISIT_CONFIG } from '@/content/siteContent'
 
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 // Rate limiting (simple in-memory store)
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
 const RATE_LIMIT_WINDOW = 60 * 1000 // 1 minute

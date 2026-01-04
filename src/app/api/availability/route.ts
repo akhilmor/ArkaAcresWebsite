@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export async function GET(request: NextRequest) {
   try {
@@ -165,9 +166,21 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('Availability API error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    
+    // Ensure JSON response even on error
     return NextResponse.json(
-      { ok: false, error: 'Failed to fetch availability' },
-      { status: 500 }
+      { 
+        ok: false, 
+        error: 'Failed to fetch availability',
+        ...(process.env.NODE_ENV !== 'production' && { debug: errorMessage })
+      },
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
     )
   }
 }

@@ -5,6 +5,8 @@ import { getEnvSafe } from '@/lib/env'
 import twilio from 'twilio'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 // Rate limiting (simple in-memory store)
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>()

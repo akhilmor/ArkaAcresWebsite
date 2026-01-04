@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma'
 import { getEnvSafe } from '@/lib/env'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 async function checkNotificationLogTable(): Promise<boolean> {
   try {

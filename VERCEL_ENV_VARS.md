@@ -155,6 +155,12 @@ Add these environment variables in **Vercel Dashboard → Your Project → Setti
 - Ensure DATABASE_URL is set in Vercel environment variables
 - If using Vercel Postgres, it should be auto-provided
 - Check that environment is set to "Production" (or all environments)
+- The build script automatically runs `prisma generate` and `prisma migrate deploy` before building
+
+**Build fails with Prisma errors:**
+- Ensure DATABASE_URL is a PostgreSQL connection string (not `file:./dev.db`)
+- Run database migrations manually if needed: `DATABASE_URL="your-db-url" npx prisma migrate deploy`
+- Check that Prisma schema matches your database schema
 
 **Email/SMS not working:**
 - Check `/api/health` endpoint to see which providers are configured

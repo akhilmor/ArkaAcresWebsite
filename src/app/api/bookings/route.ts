@@ -3,6 +3,8 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 import { sendBookingNotifications } from '@/lib/notifications'
 import { serverLogBuffer } from '@/lib/serverLogBuffer'
 import { addDays } from 'date-fns'
