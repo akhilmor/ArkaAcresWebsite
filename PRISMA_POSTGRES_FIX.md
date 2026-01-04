@@ -23,11 +23,10 @@ datasource db {
 // After:
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 ```
 
-**Why:** Prisma schema provider must match the database URL. Since Vercel uses Postgres, the schema must use `postgresql` provider.
+**Why:** Prisma schema provider must match the database URL. Since Vercel uses Postgres, the schema must use `postgresql` provider. The `url` is configured in `prisma.config.ts` instead (Prisma v7 pattern).
 
 ### 2. Updated Migration Lock
 **File:** `prisma/migrations/migration_lock.toml`
@@ -59,10 +58,11 @@ provider = "postgresql"
 **File:** `prisma.config.ts`
 
 **Changed:**
-- Removed `datasource: { url: ... }` override
-- Schema.prisma now handles the URL directly via `env("DATABASE_URL")`
+- Added `datasource: { url: process.env.DATABASE_URL }` in `defineConfig`
+- Schema.prisma only specifies `provider` (no `url` field)
+- URL is configured in `prisma.config.ts` (Prisma v7 pattern)
 
-**Why:** Avoid conflicts. Schema.prisma is the source of truth for datasource configuration.
+**Why:** Prisma v7 supports configuring datasource URL in `prisma.config.ts` using `defineConfig`. This allows the URL to be set at runtime while keeping the schema provider-agnostic.
 
 ## Important Notes
 
