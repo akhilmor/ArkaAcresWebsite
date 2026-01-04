@@ -14,9 +14,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { password, email } = body
 
-    // Enforce ADMIN_EMAIL - ignore any provided email
+    // Enforce ADMIN_EMAIL - only arkaacres@gmail.com can log in
     // Reject if user tries to use a different email (generic error)
     if (email && email.toLowerCase().trim() !== ADMIN_EMAIL.toLowerCase()) {
+      console.error('[ADMIN LOGIN] Invalid email attempt', {
+        attemptedEmail: email,
+        allowedEmail: ADMIN_EMAIL,
+        reason: 'email_mismatch',
+      })
       return NextResponse.json(
         { ok: false, error: 'Invalid credentials' },
         { status: 401 }
@@ -49,6 +54,12 @@ export async function POST(request: NextRequest) {
     const isValid = await verifyPassword(password.trim(), adminUser.passwordHash)
 
     if (!isValid) {
+      console.error('[ADMIN LOGIN] Invalid password attempt', {
+        email: ADMIN_EMAIL,
+        hasPassword: !!password,
+        passwordLength: password?.length,
+        reason: 'password_mismatch',
+      })
       return NextResponse.json(
         { ok: false, error: 'Invalid credentials' },
         { status: 401 }
@@ -64,9 +75,23 @@ export async function POST(request: NextRequest) {
       maxAge: 60 * 60 * 24 * 7, // 7 days
     })
 
+    console.log('[ADMIN LOGIN] Successful login', { email: ADMIN_EMAIL })
     return NextResponse.json({ ok: true })
   } catch (error) {
-    console.error('Login error:', error)
+    // Distinguish between missing env vars and other errors
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    const isEnvVarError = errorMessage.includes('ADMIN_PASSWORD') || errorMessage.includes('environment variable')
+    
+    if (isEnvVarError) {
+      console.error('[ADMIN LOGIN] Configuration error - missing environment variable:', errorMessage)
+    } else {
+      console.error('[ADMIN LOGIN] Unexpected error:', {
+        error: errorMessage,
+        stack: error instanceof Error ? error.stack : undefined,
+      })
+    }
+    
+    // Always return generic error to client (security)
     return NextResponse.json(
       { ok: false, error: 'Invalid credentials' },
       { status: 401 }
