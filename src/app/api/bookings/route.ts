@@ -343,7 +343,8 @@ export async function POST(request: NextRequest) {
       )
     }
   
-  try {
+    // Main handler code
+    try {
     // Parse and validate JSON first (before rate limiting)
     let body: any
     try {
