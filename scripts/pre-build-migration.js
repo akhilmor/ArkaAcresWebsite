@@ -60,16 +60,29 @@ function main() {
 
     // If there's a failed migration, try to resolve it
     if (status.includes('failed') || status.includes(MIGRATION_NAME)) {
+      log(`⚠️  Found failed migration: ${MIGRATION_NAME}`);
       log(`Attempting to resolve failed migration: ${MIGRATION_NAME}`);
       
       // Try to mark as applied (if table exists)
-      if (runCommand(
-        `npx prisma migrate resolve --applied ${MIGRATION_NAME}`,
-        `Resolving migration ${MIGRATION_NAME}`
-      )) {
-        log('✅ Migration resolved');
-      } else {
-        log('⚠️  Could not resolve migration automatically. Continuing with deploy...');
+      try {
+        execSync(`npx prisma migrate resolve --applied ${MIGRATION_NAME}`, {
+          stdio: 'inherit',
+          encoding: 'utf-8'
+        });
+        log(`✅ Migration ${MIGRATION_NAME} resolved successfully`);
+      } catch (resolveError) {
+        log(`⚠️  Could not resolve as applied, trying rolled-back...`);
+        try {
+          execSync(`npx prisma migrate resolve --rolled-back ${MIGRATION_NAME}`, {
+            stdio: 'inherit',
+            encoding: 'utf-8'
+          });
+          log(`✅ Migration ${MIGRATION_NAME} marked as rolled-back`);
+        } catch (rollbackError) {
+          log(`❌ Could not resolve migration. Error: ${rollbackError.message}`);
+          log(`   This may cause the build to fail. Please resolve manually.`);
+          // Don't exit - let migrate deploy try to handle it
+        }
       }
     }
   } catch (error) {
@@ -77,14 +90,9 @@ function main() {
     log('   Continuing with migration deploy...');
   }
 
-  // Deploy migrations
-  log('Deploying migrations...');
-  if (runCommand('npx prisma migrate deploy', 'Deploying migrations')) {
-    log('✅ Migrations deployed successfully');
-  } else {
-    log('❌ Migration deploy failed. Build will continue but may fail.');
-    // Don't exit with error - let the build script handle it
-  }
+  // Note: We don't deploy migrations here - that's handled by the build script
+  // This script just resolves failed migrations
+  log('Pre-build migration check complete. Migrations will be deployed by build script.');
 }
 
 if (require.main === module) {
