@@ -1,4 +1,9 @@
 import { PrismaClient } from '@prisma/client'
+import { Pool } from 'pg'
+import { PrismaPg } from '@prisma/adapter-pg'
+
+// Type fix for pg import
+import type pg from 'pg'
 
 // Fail fast if Prisma client is missing
 try {
@@ -37,8 +42,19 @@ function getPrismaClient(): PrismaClient {
   }
 
   try {
-    // Standard PrismaClient for PostgreSQL - no adapter needed in Node.js runtime
+    // Prisma v7.2.0 requires adapter for "client" engine type
+    // Create PostgreSQL connection pool
+    const pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      max: 10, // Maximum number of clients in the pool
+    })
+    
+    // Create Prisma adapter
+    const adapter = new PrismaPg(pool)
+    
+    // Create PrismaClient with adapter
     prismaClient = new PrismaClient({
+      adapter,
       log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
     })
     

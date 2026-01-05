@@ -25,6 +25,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/nodemailer": "^7.0.4",
@@ -33,6 +34,7 @@
     "lucide-react": "^0.294.0",
     "next": "^14.0.4",
     "nodemailer": "^7.0.12",
+    "pg": "^8.16.3",
     "prisma": "^7.2.0",
     "react": "^18.2.0",
     "react-day-picker": "^9.13.0",
@@ -44,6 +46,7 @@
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20.10.5",
+    "@types/pg": "^8.16.0",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
     "autoprefixer": "^10.4.16",
