@@ -317,6 +317,32 @@ export async function POST(request: NextRequest) {
   const requestId = generateRequestId()
   const isDev = process.env.NODE_ENV !== 'production'
   
+  // Wrap entire handler in try-catch to ensure we always return JSON
+  try {
+    // Test Prisma connection early
+    try {
+      await prisma.$connect()
+    } catch (prismaError: any) {
+      serverLogBuffer.error('[BOOKING] Prisma connection failed', {
+        requestId,
+        error: prismaError?.message,
+        stack: prismaError?.stack,
+      })
+      return NextResponse.json(
+        {
+          ok: false,
+          errorCode: 'DATABASE_ERROR',
+          message: 'Database connection failed. Please try again later.',
+          requestId,
+          ...(isDev && {
+            debug: prismaError?.message,
+            hint: 'Check DATABASE_URL and Prisma client initialization',
+          }),
+        },
+        { status: 500 }
+      )
+    }
+  
   try {
     // Parse and validate JSON first (before rate limiting)
     let body: any
