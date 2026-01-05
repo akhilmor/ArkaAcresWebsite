@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "node scripts/startup-check.js && next dev",
-    "build": "prisma generate && prisma migrate deploy && next build",
+    "build": "prisma generate && node scripts/pre-build-migration.js && prisma migrate deploy && next build",
     "migrate:resolve": "prisma migrate resolve --applied",
     "migrate:fix-vercel": "node scripts/resolve-vercel-migration.js",
     "migrate:auto-resolve": "bash scripts/auto-resolve-migration.sh",
