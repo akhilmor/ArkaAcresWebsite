@@ -901,5 +901,29 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     )
+  } catch (outerError) {
+    // Catch-all for any errors in the outer try-catch (including Prisma init errors)
+    const errorMessage = outerError instanceof Error ? outerError.message : 'Unknown error'
+    const errorStack = outerError instanceof Error ? outerError.stack : undefined
+    
+    serverLogBuffer.error('[BOOKING] Outer catch-all error', {
+      requestId,
+      error: errorMessage,
+      stack: errorStack,
+    })
+    
+    return NextResponse.json(
+      {
+        ok: false,
+        errorCode: 'INTERNAL_ERROR',
+        message: 'Something went wrong. Please try again later.',
+        requestId,
+        ...(isDev && {
+          debug: errorMessage,
+          hint: 'This error occurred before the main handler. Check Prisma initialization.',
+        }),
+      },
+      { status: 500 }
+    )
   }
 }
