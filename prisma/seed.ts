@@ -1,11 +1,18 @@
 import { PrismaClient } from '@prisma/client'
-import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3'
+import { Pool } from 'pg'
+import { PrismaPg } from '@prisma/adapter-pg'
 
-const dbPath = process.env.DATABASE_URL?.replace('file:', '') || './dev.db'
-const adapterFactory = new PrismaBetterSqlite3({ url: dbPath })
+// Create PostgreSQL connection pool
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  max: 10,
+})
 
-// @ts-ignore - PrismaClient with adapter works at runtime
-const prisma = new PrismaClient({ adapter: adapterFactory })
+// Create Prisma adapter
+const adapter = new PrismaPg(pool)
+
+// Create PrismaClient with adapter
+const prisma = new PrismaClient({ adapter })
 
 async function main() {
   console.log('🌱 Seeding database...')
