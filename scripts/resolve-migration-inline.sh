@@ -23,30 +23,26 @@ if [[ ! "$DATABASE_URL" =~ ^postgres ]]; then
   exit 0
 fi
 
-echo "[Migration] Checking for failed migrations that need resolution..."
+echo "[Migration] Proactively resolving migrations with SQLite syntax issues..."
 
-# Get migration status once
-MIGRATION_STATUS=$(npx prisma migrate status 2>&1 || true)
-
-# Try to resolve each migration proactively
+# Try to resolve each migration proactively (tables already exist from db push)
 for MIGRATION_NAME in "${MIGRATIONS[@]}"; do
-  # Check if this migration needs resolution
-  if echo "$MIGRATION_STATUS" | grep -qi "$MIGRATION_NAME.*failed\|not yet applied.*$MIGRATION_NAME"; then
-    echo "[Migration] Attempting to resolve migration: $MIGRATION_NAME"
-    
-    # Try to resolve as applied first (if tables exist)
-    if npx prisma migrate resolve --applied "$MIGRATION_NAME" 2>&1 | grep -q "marked as applied"; then
-      echo "[Migration] ✅ Migration $MIGRATION_NAME resolved as applied"
-      continue
-    fi
-    
+  echo "[Migration] Attempting to resolve: $MIGRATION_NAME"
+  
+  # Try to resolve as applied first (tables exist, so this should work)
+  RESULT=$(npx prisma migrate resolve --applied "$MIGRATION_NAME" 2>&1)
+  if echo "$RESULT" | grep -qi "marked as applied"; then
+    echo "[Migration] ✅ Migration $MIGRATION_NAME resolved as applied"
+  elif echo "$RESULT" | grep -qi "already applied\|does not exist"; then
+    echo "[Migration] ✅ Migration $MIGRATION_NAME already resolved"
+  else
     # If that fails, try rolled-back
-    if npx prisma migrate resolve --rolled-back "$MIGRATION_NAME" 2>&1 | grep -q "marked as rolled-back"; then
+    ROLLBACK_RESULT=$(npx prisma migrate resolve --rolled-back "$MIGRATION_NAME" 2>&1)
+    if echo "$ROLLBACK_RESULT" | grep -qi "marked as rolled-back"; then
       echo "[Migration] ✅ Migration $MIGRATION_NAME resolved as rolled-back"
-      continue
+    else
+      echo "[Migration] ⚠️  Could not resolve $MIGRATION_NAME (may need manual resolution)"
     fi
-    
-    echo "[Migration] ⚠️  Could not resolve $MIGRATION_NAME (may already be resolved)"
   fi
 done
 
