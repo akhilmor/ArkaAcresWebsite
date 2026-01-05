@@ -12,22 +12,21 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
-// Validate DATABASE_URL at module load (but don't initialize PrismaClient yet)
-if (!process.env.DATABASE_URL) {
-  console.warn('⚠️ [PRISMA] DATABASE_URL not set. Prisma will fail when used.')
-}
+// Lazy initialization - only create client when first accessed
+let prismaClient: PrismaClient | undefined
 
-if (process.env.DATABASE_URL?.startsWith('file:')) {
-  console.error('❌ [PRISMA] DATABASE_URL must be PostgreSQL (postgresql://...), not SQLite (file:...)')
-}
+function getPrismaClient(): PrismaClient {
+  // Return existing client if available
+  if (prismaClient) {
+    return prismaClient
+  }
 
-// Initialize PrismaClient - for PostgreSQL in Node.js, no adapter needed
-// Using singleton pattern to prevent multiple instances
-let prisma: PrismaClient
+  // Check global cache
+  if (globalForPrisma.prisma) {
+    prismaClient = globalForPrisma.prisma
+    return prismaClient
+  }
 
-if (globalForPrisma.prisma) {
-  prisma = globalForPrisma.prisma
-} else {
   // Validate DATABASE_URL before creating client
   if (!process.env.DATABASE_URL) {
     throw new Error('❌ [PRISMA] DATABASE_URL is required. Set it in your environment variables.')
@@ -39,16 +38,20 @@ if (globalForPrisma.prisma) {
 
   try {
     // Standard PrismaClient for PostgreSQL - no adapter needed in Node.js
-    prisma = new PrismaClient({
+    // The engineType = "library" in schema.prisma ensures we use the library engine
+    prismaClient = new PrismaClient({
       log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
     })
     
     // Store in global to prevent multiple instances in development
     if (process.env.NODE_ENV !== 'production') {
-      globalForPrisma.prisma = prisma
+      globalForPrisma.prisma = prismaClient
     }
+    
+    return prismaClient
   } catch (error: any) {
     console.error('❌ [PRISMA] Failed to initialize Prisma client:', error?.message)
+    console.error('❌ [PRISMA] Error details:', error)
     if (process.env.NODE_ENV === 'production') {
       console.error('❌ [PRISMA] Production error - check DATABASE_URL is set correctly in Vercel environment variables')
     } else {
@@ -58,5 +61,16 @@ if (globalForPrisma.prisma) {
   }
 }
 
-export { prisma }
+// Export a proxy that initializes on first access
+export const prisma = new Proxy({} as PrismaClient, {
+  get(_target, prop) {
+    const client = getPrismaClient()
+    const value = (client as any)[prop]
+    // Bind functions to maintain 'this' context
+    if (typeof value === 'function') {
+      return value.bind(client)
+    }
+    return value
+  }
+})
 
