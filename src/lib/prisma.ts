@@ -27,16 +27,16 @@ if (process.env.DATABASE_URL.startsWith('file:')) {
 }
 
 // Lazy initialization - only create client when first accessed
-let prisma: PrismaClient | undefined
+let prismaClient: PrismaClient | undefined
 
 function getPrisma(): PrismaClient {
-  if (prisma) {
-    return prisma
+  if (prismaClient) {
+    return prismaClient
   }
 
   if (globalForPrisma.prisma) {
-    prisma = globalForPrisma.prisma
-    return prisma
+    prismaClient = globalForPrisma.prisma
+    return prismaClient
   }
 
   // Validate DATABASE_URL at initialization time (not module load time)
@@ -56,15 +56,15 @@ function getPrisma(): PrismaClient {
   try {
     // Standard PrismaClient initialization (works with PostgreSQL)
     // No adapter needed for PostgreSQL in Node.js runtime
-    prisma = new PrismaClient({
+    prismaClient = new PrismaClient({
       log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
     })
     
     if (process.env.NODE_ENV !== 'production') {
-      globalForPrisma.prisma = prisma
+      globalForPrisma.prisma = prismaClient
     }
     
-    return prisma
+    return prismaClient
   } catch (error: any) {
     console.error('❌ [PRISMA] Failed to initialize Prisma client:', error?.message)
     if (process.env.NODE_ENV === 'production') {
