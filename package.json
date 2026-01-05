@@ -7,6 +7,7 @@
     "build": "prisma generate && prisma migrate deploy && next build",
     "migrate:resolve": "prisma migrate resolve --applied",
     "migrate:fix-vercel": "node scripts/resolve-vercel-migration.js",
+    "migrate:auto-resolve": "bash scripts/auto-resolve-migration.sh",
     "start": "next start",
     "lint": "next lint",
     "clean": "rm -rf .next node_modules/.cache",
@@ -54,6 +55,7 @@
     "postcss": "^8.4.32",
     "tailwindcss": "^3.3.6",
     "tsx": "^4.21.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vercel": "^50.1.3"
   }
 }
