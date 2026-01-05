@@ -37,8 +37,7 @@ function getPrismaClient(): PrismaClient {
   }
 
   try {
-    // Standard PrismaClient for PostgreSQL - no adapter needed in Node.js
-    // The engineType = "library" in schema.prisma ensures we use the library engine
+    // Standard PrismaClient for PostgreSQL - no adapter needed in Node.js runtime
     prismaClient = new PrismaClient({
       log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
     })
