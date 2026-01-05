@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "node scripts/startup-check.js && next dev",
-    "build": "prisma generate && (npx prisma migrate resolve --applied 20251226134246_add_notification_log || npx prisma migrate resolve --rolled-back 20251226134246_add_notification_log || true) && prisma migrate deploy && next build",
+    "build": "prisma generate && bash scripts/resolve-migration-inline.sh && prisma migrate deploy && next build",
     "migrate:resolve": "prisma migrate resolve --applied",
     "migrate:fix-vercel": "node scripts/resolve-vercel-migration.js",
     "migrate:auto-resolve": "bash scripts/auto-resolve-migration.sh",
