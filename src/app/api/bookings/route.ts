@@ -902,6 +902,7 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     )
+    }
   } catch (outerError) {
     // Catch-all for any errors in the outer try-catch (including Prisma init errors)
     const errorMessage = outerError instanceof Error ? outerError.message : 'Unknown error'
