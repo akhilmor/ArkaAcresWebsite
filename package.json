@@ -6,6 +6,7 @@
     "dev": "node scripts/startup-check.js && next dev",
     "build": "prisma generate && prisma migrate deploy && next build",
     "migrate:resolve": "prisma migrate resolve --applied",
+    "migrate:fix-vercel": "node scripts/resolve-vercel-migration.js",
     "start": "next start",
     "lint": "next lint",
     "clean": "rm -rf .next node_modules/.cache",
