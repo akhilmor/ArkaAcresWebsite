@@ -12,59 +12,41 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
-// Validate DATABASE_URL
+// Validate DATABASE_URL at module load (but don't initialize PrismaClient yet)
 if (!process.env.DATABASE_URL) {
-  const error = '❌ [PRISMA] DATABASE_URL is required. Set it in your environment variables.'
-  console.error(error)
-  throw new Error(error)
+  console.warn('⚠️ [PRISMA] DATABASE_URL not set. Prisma will fail when used.')
 }
 
-// Validate DATABASE_URL is Postgres (not SQLite file:)
-if (process.env.DATABASE_URL.startsWith('file:')) {
-  const error = '❌ [PRISMA] DATABASE_URL must be a PostgreSQL connection string (postgresql://...), not SQLite (file:...). The schema now uses PostgreSQL provider.'
-  console.error(error)
-  throw new Error(error)
+if (process.env.DATABASE_URL?.startsWith('file:')) {
+  console.error('❌ [PRISMA] DATABASE_URL must be PostgreSQL (postgresql://...), not SQLite (file:...)')
 }
 
-// Lazy initialization - only create client when first accessed
-let prismaClient: PrismaClient | undefined
+// Initialize PrismaClient - for PostgreSQL in Node.js, no adapter needed
+// Using singleton pattern to prevent multiple instances
+let prisma: PrismaClient
 
-function getPrisma(): PrismaClient {
-  if (prismaClient) {
-    return prismaClient
-  }
-
-  if (globalForPrisma.prisma) {
-    prismaClient = globalForPrisma.prisma
-    return prismaClient
-  }
-
-  // Validate DATABASE_URL at initialization time (not module load time)
+if (globalForPrisma.prisma) {
+  prisma = globalForPrisma.prisma
+} else {
+  // Validate DATABASE_URL before creating client
   if (!process.env.DATABASE_URL) {
-    const error = '❌ [PRISMA] DATABASE_URL is required. Set it in your environment variables.'
-    console.error(error)
-    throw new Error(error)
+    throw new Error('❌ [PRISMA] DATABASE_URL is required. Set it in your environment variables.')
   }
 
-  // Validate DATABASE_URL is Postgres (not SQLite file:)
   if (process.env.DATABASE_URL.startsWith('file:')) {
-    const error = '❌ [PRISMA] DATABASE_URL must be a PostgreSQL connection string (postgresql://...), not SQLite (file:...). The schema now uses PostgreSQL provider.'
-    console.error(error)
-    throw new Error(error)
+    throw new Error('❌ [PRISMA] DATABASE_URL must be a PostgreSQL connection string (postgresql://...), not SQLite (file:...).')
   }
 
   try {
-    // Standard PrismaClient initialization (works with PostgreSQL)
-    // No adapter needed for PostgreSQL in Node.js runtime
-    prismaClient = new PrismaClient({
+    // Standard PrismaClient for PostgreSQL - no adapter needed in Node.js
+    prisma = new PrismaClient({
       log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
     })
     
+    // Store in global to prevent multiple instances in development
     if (process.env.NODE_ENV !== 'production') {
-      globalForPrisma.prisma = prismaClient
+      globalForPrisma.prisma = prisma
     }
-    
-    return prismaClient
   } catch (error: any) {
     console.error('❌ [PRISMA] Failed to initialize Prisma client:', error?.message)
     if (process.env.NODE_ENV === 'production') {
@@ -76,10 +58,5 @@ function getPrisma(): PrismaClient {
   }
 }
 
-// Export as a getter property for lazy initialization
-export const prisma = new Proxy({} as PrismaClient, {
-  get(_target, prop) {
-    return (getPrisma() as any)[prop]
-  }
-})
+export { prisma }
 
